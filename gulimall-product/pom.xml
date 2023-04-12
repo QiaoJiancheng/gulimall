@@ -28,6 +28,16 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- aliyun oss -->
+
+
+        <!-- aliyun oss -->
+        <!--<dependency>-->
+        <!--    <groupId>com.aliyun.oss</groupId>-->
+        <!--    <artifactId>aliyun-sdk-oss</artifactId>-->
+        <!--    <version>3.5.0</version>-->
+        <!--</dependency>-->
+
         <!-- web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
