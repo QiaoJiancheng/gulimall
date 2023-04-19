@@ -17,7 +17,7 @@ import java.io.InputStream;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class GulimallThirdPartyApplicationTests {
+public class ThirdPartyApplicationTests {
 
     @Autowired
     OSS ossClient;

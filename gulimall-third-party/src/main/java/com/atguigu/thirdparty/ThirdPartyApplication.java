@@ -6,10 +6,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-public class GulimallThirdPartyApplication {
+public class ThirdPartyApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GulimallThirdPartyApplication.class, args);
+        SpringApplication.run(ThirdPartyApplication.class, args);
     }
 
 }

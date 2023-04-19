@@ -94,7 +94,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.atguigu.thirdparty.GulimallThirdPartyApplication</mainClass>
+                    <mainClass>com.atguigu.thirdparty.ThirdPartyApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>
