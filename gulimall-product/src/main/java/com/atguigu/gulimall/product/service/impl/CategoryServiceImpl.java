@@ -1,7 +1,13 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.gulimall.product.dao.CategoryBrandRelationDao;
+import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,10 +21,17 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.product.dao.CategoryDao;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+//    @Autowired
+//    private CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
+    private CategoryBrandRelationDao categoryBrandRelationDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -53,6 +66,39 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void removeMenuByIds(List<Long> asList) {
         // TODO 检查当前删除的菜单是否被其他地方引用
         baseMapper.deleteBatchIds(asList);
+    }
+
+
+    /**
+     * 找到catelog的完整路径
+     *
+     * @param catelogId
+     * @return
+     */
+    @Override
+    public Long[] findCategoryPath(Long catelogId) {
+        List<Long> parentPath = findParentPath(catelogId, new ArrayList<>());
+        Collections.reverse(parentPath);
+        return parentPath.toArray(new Long[0]);
+    }
+
+    @Transactional
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+        if (!StringUtils.isEmpty(category.getName())) {
+            categoryBrandRelationDao.updateCategoryCasecade(category.getCatId(), category.getName());
+        }
+//        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+    }
+
+    public List<Long> findParentPath(Long catelogId, List<Long> paths) {
+        paths.add(catelogId);
+        CategoryEntity categoryEntity = this.getById(catelogId);
+        if (categoryEntity.getParentCid() != 0) {
+            findParentPath(categoryEntity.getParentCid(), paths);
+        }
+        return paths;
     }
 
     public List<CategoryEntity> childrens(CategoryEntity root, List<CategoryEntity> categoryEntities) {
