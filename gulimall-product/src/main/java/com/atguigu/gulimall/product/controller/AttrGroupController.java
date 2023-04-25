@@ -7,6 +7,7 @@ import java.util.Map;
 import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.vo.AttrGroupRelationVo;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttrsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,16 @@ public class AttrGroupController {
     @Autowired
     private CategoryService categoryService;
 
+
+    // /product/attrgroup/{catelogId}/withattr
+    /**
+     * 根据分类ID查询关联的分组，然后根据分组查询关联的所有属性
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrsByCategoryId(@PathVariable("catelogId") Long catelogId) {
+        List<AttrGroupWithAttrsVo> vos = attrGroupService.getAttrsByCategoryId(catelogId);
+        return R.ok().put("data", vos);
+    }
 
     /**
      * 根据分组ID查找所有关联的属性

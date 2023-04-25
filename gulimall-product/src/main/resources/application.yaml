@@ -6,6 +6,8 @@ spring:
     password: root
     url: jdbc:mysql://192.168.221.128:3306/gulimall_pms
     driver-class-name: com.mysql.jdbc.Driver
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
 
 # 配置SQL映射文件位置
 mybatis-plus:
@@ -17,4 +19,3 @@ mybatis-plus:
 logging:
   level:
     com.atguigu.gulimall: debug
-

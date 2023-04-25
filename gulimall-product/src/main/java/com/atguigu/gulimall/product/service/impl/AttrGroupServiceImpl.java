@@ -6,6 +6,8 @@ import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrAttrgroupRelationService;
 import com.atguigu.gulimall.product.service.AttrService;
 import com.atguigu.gulimall.product.vo.AttrGroupRelationVo;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttrsVo;
+import com.atguigu.gulimall.product.vo.AttrRespVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -135,6 +137,24 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId).notIn("attr_id", attrIds);
 
         return attrService.noAttrRelation(params, wrapper);
+    }
+
+    @Override
+    public List<AttrGroupWithAttrsVo> getAttrsByCategoryId(Long catelogId) {
+        // 根据分类ID查询对应关联分组
+        List<AttrGroupEntity> attrGroupEntities = this.list(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+
+        // 根据分组ID查询关联属性
+        if (attrGroupEntities == null) return null;
+        List<AttrGroupWithAttrsVo> collect = attrGroupEntities.stream().map(attrGroup -> {
+            AttrGroupWithAttrsVo attrsVo = new AttrGroupWithAttrsVo();
+            BeanUtils.copyProperties(attrGroup, attrsVo);
+            List<AttrEntity> attrEntities = this.getAttrRelation(attrsVo.getAttrGroupId());
+            attrsVo.setAttrs(attrEntities);
+            return attrsVo;
+        }).collect(Collectors.toList());
+
+        return collect;
     }
 
 }

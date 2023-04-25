@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -83,6 +84,26 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
                 categoryBrandRelation,
                 new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", categoryBrandRelation.getCatelogId())
         );
+    }
+
+    /**
+     * // 根据分类ID查询关联品牌的对应品牌ID，然后根据品牌ID查询对应的品牌信息
+     *
+     * @param catId
+     * @return
+     */
+    @Override
+    public List<BrandEntity> getBrands(Long catId) {
+        List<CategoryBrandRelationEntity> relationEntities = this.list(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+        if (relationEntities != null) {
+            List<BrandEntity> brandEntities = relationEntities.stream().map(entity -> {
+                Long brandId = entity.getBrandId();
+                BrandEntity brandEntity = brandService.getById(brandId);
+                return brandEntity;
+            }).collect(Collectors.toList());
+            return brandEntities;
+        }
+        return null;
     }
 
 }
