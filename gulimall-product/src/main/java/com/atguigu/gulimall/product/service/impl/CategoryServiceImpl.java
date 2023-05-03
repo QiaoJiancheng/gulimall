@@ -2,6 +2,7 @@ package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.gulimall.product.dao.CategoryBrandRelationDao;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import com.atguigu.gulimall.product.vo.Catelog2Vo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -90,6 +92,39 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             categoryBrandRelationDao.updateCategoryCasecade(category.getCatId(), category.getName());
         }
 //        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+    }
+
+    @Override
+    public List<CategoryEntity> getLevel1Categorys() {
+        return this.list(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+    }
+
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatelogJson() {
+        // 查询一级分类
+        List<CategoryEntity> level1Categorys = this.getLevel1Categorys();
+        Map<String, List<Catelog2Vo>> catelogJson = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            List<Catelog2Vo> catelog2Vos = null;
+            // 获取一级菜单分类下的二级分类菜单
+            List<CategoryEntity> categoryEntities2 = this.list(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+            if (categoryEntities2 != null) {
+                catelog2Vos = categoryEntities2.stream().map(categoryEntity2 -> {
+                    Catelog2Vo catelog2Vo = new Catelog2Vo(categoryEntity2.getParentCid().toString(), null, categoryEntity2.getCatId().toString(), categoryEntity2.getName());
+                    // 获取当前二级菜单下的三级菜单并封装成vo
+                    List<CategoryEntity> categoryEntities3 = this.list(new QueryWrapper<CategoryEntity>().eq("parent_cid", categoryEntity2.getCatId()));
+                    if (categoryEntities3 != null) {
+                        List<Catelog2Vo.Catelog3Vo> collect = categoryEntities3.stream().map(categoryEntity3 -> {
+                            Catelog2Vo.Catelog3Vo catelog3Vo = new Catelog2Vo.Catelog3Vo(categoryEntity2.getCatId().toString(), categoryEntity3.getCatId().toString(), categoryEntity3.getName());
+                            return catelog3Vo;
+                        }).collect(Collectors.toList());
+                        catelog2Vo.setCatalog3List(collect);
+                    }
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
+            }
+            return catelog2Vos;
+        }));
+        return catelogJson;
     }
 
     public List<Long> findParentPath(Long catelogId, List<Long> paths) {
